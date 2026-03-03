@@ -63,16 +63,15 @@ tokenizer, model = load_model()
 # --------------------------------------------------
 # TEXT GENERATION FUNCTION
 # --------------------------------------------------
-
-def generate_text(prompt, max_tokens=150):
+def generate_text(prompt, max_tokens=250):
     inputs = tokenizer(prompt, return_tensors="pt", truncation=True)
 
     outputs = model.generate(
         **inputs,
         max_length=max_tokens,
         num_beams=5,
-        temperature=0.7,
-        no_repeat_ngram_size=2,
+        temperature=0.8,
+        no_repeat_ngram_size=3,
         early_stopping=True
     )
 
@@ -103,26 +102,47 @@ if st.button("Generate Resume & Portfolio"):
         st.success(predicted_role)
 
         objective_prompt = f"""
-Write a professional career objective for a {predicted_role}
-with skills in {skills_input}.
-Write 3 to 4 complete sentences in formal tone.
-Return only the paragraph.
+Write a strong and professional career objective for a {predicted_role}.
+The candidate has skills in {skills_input}.
+
+The objective should:
+- Be 4 to 5 complete sentences
+- Highlight technical expertise
+- Mention problem-solving ability
+- Show career growth mindset
+- Sound confident and professional
+
+Return only the final paragraph.
 """
 
         bio_prompt = f"""
-Write a professional third-person bio for {name},
-an aspiring {predicted_role} skilled in {skills_input}.
-Keep it concise and professional.
+Write a detailed professional bio in third person for {name},
+an aspiring {predicted_role} with skills in {skills_input}.
+
+The bio should:
+- Be 5 to 6 sentences
+- Highlight strengths and technical background
+- Mention analytical and problem-solving abilities
+- Sound confident and professional
+- Avoid repetition
+
 Return only the paragraph.
 """
 
         project_prompt = f"""
-Write a professional project description.
+Write a detailed and professional project description.
 
 Project Title: {project_title}
 Project Details: {project_desc}
 
-Explain purpose, technologies used, and impact clearly.
+The description should:
+- Be 6 to 8 sentences
+- Clearly explain the objective of the project
+- Mention technologies used
+- Highlight key features
+- Explain the impact or outcome
+- Sound technical and structured
+
 Return only the paragraph.
 """
 
@@ -206,6 +226,7 @@ Project Summary:
             )
 
         os.remove(file_name)
+
 
 
 
