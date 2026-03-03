@@ -11,7 +11,7 @@ import os
 
 st.set_page_config(page_title="AI Resume & Portfolio Builder", layout="centered")
 
-st.title("🤖 AI Resume & Portfolio Builder (Full AI Version)")
+st.title("🤖 AI Resume & Portfolio Builder")
 
 # --------------------------------------------------
 # ML ROLE PREDICTION MODEL
@@ -70,12 +70,12 @@ def generate_text(prompt, max_tokens=150):
     outputs = model.generate(
         **inputs,
         max_length=max_tokens,
-        num_beams=4,
+        num_beams=5,
+        temperature=0.7,
         early_stopping=True
     )
 
     return tokenizer.decode(outputs[0], skip_special_tokens=True)
-
 # --------------------------------------------------
 # USER INPUT
 # --------------------------------------------------
@@ -104,22 +104,48 @@ if st.button("Generate Resume & Portfolio"):
         st.success(predicted_role)
 
         # AI Prompts
-        objective_prompt = f"""
-Write a professional 3-4 line career objective for a {predicted_role}
-with skills in {skills_input}.
-Keep it formal and concise.
+      # ------------------------------
+# IMPROVED AI PROMPTS
+# ------------------------------
+
+objective_prompt = f"""
+You are a professional resume writer.
+
+Write a strong and professional career objective for a {predicted_role}.
+The candidate has skills in {skills_input}.
+
+Make it:
+- 3 to 4 lines
+- Formal and impactful
+- Focused on growth, contribution, and problem-solving
+- Avoid repetition
 """
 
-        bio_prompt = f"""
-Write a professional short bio for {name}, who is an aspiring
-{predicted_role} with skills in {skills_input}.
-Keep it under 5 lines.
+bio_prompt = f"""
+Write a concise professional bio for {name}, an aspiring {predicted_role}.
+
+Skills: {skills_input}
+
+Make it:
+- 4 to 5 lines
+- Third person
+- Professional tone
+- Highlight strengths and technical expertise
+- Do not repeat sentences
 """
 
-        project_prompt = f"""
-Write a professional project description for a project titled
-'{project_title}'. The project involves {project_desc}.
-Keep it clear and technical.
+project_prompt = f"""
+Write a technical and professional project description.
+
+Project Title: {project_title}
+Project Details: {project_desc}
+
+Make it:
+- 5 to 6 lines
+- Clearly explain purpose
+- Mention technologies used (if relevant to {skills_input})
+- Highlight impact and outcomes
+- Avoid repetition
 """
 
         # Generate AI Content
@@ -204,4 +230,5 @@ Project Summary:
             )
 
         os.remove(file_name)
+
 
