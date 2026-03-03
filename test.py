@@ -102,46 +102,32 @@ if st.button("Generate Resume & Portfolio"):
         st.success(predicted_role)
 
         objective_prompt = f"""
-Write a strong and professional career objective for a {predicted_role}.
-The candidate has skills in {skills_input}.
+Write a professional and impactful career objective for a {predicted_role}
+who has skills in {skills_input}.
 
-The objective should:
-- Be 4 to 5 complete sentences
-- Mention problem-solving ability
-- Show career growth mindset
-- Sound confident and professional
-
-Return only the final paragraph.
+The objective should sound confident, highlight technical strengths,
+and express interest in contributing to an organization.
+Write it as a smooth paragraph.
 """
 
         bio_prompt = f"""
-Write a detailed professional bio in third person for {name},
-an aspiring {predicted_role} with skills in {skills_input}.
+Write a professional third-person bio for {name},
+an aspiring {predicted_role} skilled in {skills_input}.
 
-The bio should:
-- Be 5 to 6 sentences
-- Highlight strengths and technical background
-- Mention analytical and problem-solving abilities
-- Sound confident and professional
-- Avoid repetition
-
-Return only the paragraph.
+The bio should describe technical expertise, analytical ability,
+and commitment to professional growth.
+Write it as a smooth and natural paragraph.
 """
 
         project_prompt = f"""
-Write a detailed and professional project description.
+Write a professional project description.
 
 Project Title: {project_title}
 Project Details: {project_desc}
 
-The description should:
-- Be 6 to 8 sentences
-- Mention technologies used
-- Highlight key features
-- Explain the impact or outcome
-- Sound technical and structured
-
-Return only the paragraph.
+Explain the purpose of the project, technologies involved,
+and the impact or benefits of the solution.
+Write it clearly as a detailed paragraph.
 """
 
         objective = generate_text(objective_prompt, 150)
@@ -224,6 +210,7 @@ Project Summary:
             )
 
         os.remove(file_name)
+
 
 
 
