@@ -108,45 +108,45 @@ if st.button("Generate Resume & Portfolio"):
 # IMPROVED AI PROMPTS
 # ------------------------------
 
-objective_prompt = f"""
-You are a professional resume writer.
+         objective_prompt = f"""
+         You are a professional resume writer.
 
-Write a strong and professional career objective for a {predicted_role}.
-The candidate has skills in {skills_input}.
+         Write a strong and professional career objective for a {predicted_role}.
+         The candidate has skills in {skills_input}.
 
-Make it:
-- 3 to 4 lines
-- Formal and impactful
-- Focused on growth, contribution, and problem-solving
-- Avoid repetition
-"""
+         Make it:
+         - 3 to 4 lines
+         - Formal and impactful
+         - Focused on growth, contribution, and problem-solving
+         - Avoid repetition
+         """
 
-bio_prompt = f"""
-Write a concise professional bio for {name}, an aspiring {predicted_role}.
+         bio_prompt = f"""
+         Write a concise professional bio for {name}, an aspiring {predicted_role}.
 
-Skills: {skills_input}
+         Skills: {skills_input}
 
-Make it:
-- 4 to 5 lines
-- Third person
-- Professional tone
-- Highlight strengths and technical expertise
-- Do not repeat sentences
-"""
+        Make it:
+        - 4 to 5 lines
+        - Third person
+        - Professional tone
+        - Highlight strengths and technical expertise
+        - Do not repeat sentences
+        """
 
-project_prompt = f"""
-Write a technical and professional project description.
+        project_prompt = f"""
+        Write a technical and professional project description.
 
-Project Title: {project_title}
-Project Details: {project_desc}
+        Project Title: {project_title}
+        Project Details: {project_desc}
 
-Make it:
-- 5 to 6 lines
-- Clearly explain purpose
-- Mention technologies used (if relevant to {skills_input})
-- Highlight impact and outcomes
-- Avoid repetition
-"""
+        Make it:
+        - 5 to 6 lines
+        - Clearly explain purpose
+        - Mention technologies used (if relevant to {skills_input})
+        - Highlight impact and outcomes
+        - Avoid repetition
+        """
 
         # Generate AI Content
         objective = generate_text(objective_prompt, 150)
@@ -230,5 +230,6 @@ Project Summary:
             )
 
         os.remove(file_name)
+
 
 
