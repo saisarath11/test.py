@@ -107,7 +107,6 @@ The candidate has skills in {skills_input}.
 
 The objective should:
 - Be 4 to 5 complete sentences
-- Highlight technical expertise
 - Mention problem-solving ability
 - Show career growth mindset
 - Sound confident and professional
@@ -137,7 +136,6 @@ Project Details: {project_desc}
 
 The description should:
 - Be 6 to 8 sentences
-- Clearly explain the objective of the project
 - Mention technologies used
 - Highlight key features
 - Explain the impact or outcome
@@ -226,6 +224,7 @@ Project Summary:
             )
 
         os.remove(file_name)
+
 
 
 
