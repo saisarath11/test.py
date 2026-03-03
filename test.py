@@ -71,13 +71,14 @@ generator = load_model()
 # -------------------------------
 # GENERATION FUNCTION
 # -------------------------------
-def generate_text(prompt, max_tokens=200):
+def generate_text(prompt, max_tokens=220):
     response = generator(
         prompt,
         max_length=max_tokens,
-        temperature=0.8,
+        temperature=0.9,
         num_beams=4,
-        repetition_penalty=1.2
+        repetition_penalty=1.2,
+        min_length=80   # 🔥 THIS IS IMPORTANT
     )
     return response[0]["generated_text"]
 
@@ -181,6 +182,7 @@ Project:
         file_name="Resume.txt",
         mime="text/plain"
     )
+
 
 
 
