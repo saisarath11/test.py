@@ -74,7 +74,7 @@ generator = load_model()
 def generate_text(prompt):
     response = generator(
         prompt,
-        max_new_tokens=120,
+        max_new_tokens=140,
         do_sample=True,
         temperature=0.7,
         top_p=0.9,
@@ -82,7 +82,6 @@ def generate_text(prompt):
         no_repeat_ngram_size=3
     )
     return response[0]["generated_text"]
-
 # -------------------------------
 # USER INPUT SECTION
 # -------------------------------
@@ -110,27 +109,26 @@ if st.button("Generate Portfolio"):
 
     # PROMPTS
     objective_prompt = f"""
-Generate a simple and professional career objective suitable for a college student.
+Generate a professional career objective for a college student aspiring to become a {predicted_role}.
 
-Role: {predicted_role}
 Skills: {skills_input}
 
-The objective should sound confident, mention learning and growth,
-and be written in 2-3 clear sentences.
-
+The objective should highlight technical skills, eagerness to learn,
+problem-solving ability, and desire to grow in the field.
+Write 2-3 clear and professional sentences.
 Output:
 """
 
     bio_prompt = f"""
-Generate a simple and professional third-person bio suitable for a college student.
+Generate a professional third-person bio for {name},
+a college student aspiring to become a {predicted_role}.
 
-Name: {name}
-Role: {predicted_role}
 Skills: {skills_input}
 
-The bio should describe technical foundation, interest in data science,
-and willingness to learn. Write 2-3 clear sentences.
-
+The bio should describe technical foundation, curiosity for learning,
+analytical thinking, and passion for technology.
+Do not mention any company, university, or location.
+Write 2-3 professional sentences.
 Output:
 """
     project_prompt = f"""
@@ -181,6 +179,7 @@ Project:
         file_name="Resume.txt",
         mime="text/plain"
     )
+
 
 
 
