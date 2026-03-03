@@ -1,7 +1,7 @@
 streamlit
 pandas
 scikit-learn
-transformers
+transformers>=4.35.0
 torch
-reportlab
 sentencepiece
+reportlab
