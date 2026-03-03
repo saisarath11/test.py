@@ -1,151 +1,156 @@
 import streamlit as st
-import pandas as pd
-from transformers import pipeline
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.naive_bayes import MultinomialNB
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-from reportlab.lib.pagesizes import A4
-from reportlab.lib.styles import getSampleStyleSheet
-import torch
-import os
+from sklearn.linear_model import LogisticRegression
+from transformers import pipeline
 
-st.set_page_config(page_title="AI Resume & Portfolio Builder", layout="centered")
+# -------------------------------
+# PAGE CONFIG
+# -------------------------------
+st.set_page_config(
+    page_title="AI Resume & Portfolio Builder",
+    page_icon="🚀",
+    layout="wide"
+)
 
-st.title("🤖 AI Resume & Portfolio Builder")
-
-# --------------------------------------------------
-# ML ROLE PREDICTION MODEL
-# --------------------------------------------------
-
-data = {
-    "skills": [
-        "python machine learning data analysis pandas",
-        "html css javascript react",
-        "aws cloud docker kubernetes",
-        "network security ethical hacking cryptography",
-        "deep learning neural networks artificial intelligence"
-    ],
-    "role": [
-        "Data Scientist",
-        "Web Developer",
-        "Cloud Engineer",
-        "Cyber Security Analyst",
-        "AI Engineer"
-    ]
+# -------------------------------
+# CUSTOM CSS (Premium UI)
+# -------------------------------
+st.markdown("""
+<style>
+.main {
+    background-color: #0e1117;
 }
+h1, h2, h3 {
+    color: #4CAF50;
+}
+.stButton>button {
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 10px;
+    height: 3em;
+    width: 100%;
+    font-size: 16px;
+}
+</style>
+""", unsafe_allow_html=True)
 
-df = pd.DataFrame(data)
+st.title("🚀 AI Resume & Portfolio Builder")
+
+# -------------------------------
+# SIMPLE TRAINING DATA (AI Role Prediction)
+# -------------------------------
+data = [
+    ("python machine learning data analysis pandas numpy", "Data Scientist"),
+    ("html css javascript react frontend ui ux", "Frontend Developer"),
+    ("java spring boot backend api database", "Backend Developer"),
+    ("c c++ embedded systems hardware microcontroller", "Embedded Engineer")
+]
+
+texts = [x[0] for x in data]
+labels = [x[1] for x in data]
 
 vectorizer = TfidfVectorizer()
-X = vectorizer.fit_transform(df["skills"])
-y = df["role"]
+X = vectorizer.fit_transform(texts)
 
-model_ml = MultinomialNB()
-model_ml.fit(X, y)
+model_ml = LogisticRegression()
+model_ml.fit(X, labels)
 
-st.success("✅ ML Role Prediction Model Ready")
-
-# --------------------------------------------------
-# LOAD FLAN-T5 SMALL (STABLE)
-# --------------------------------------------------
-
+# -------------------------------
+# LOAD GENERATIVE MODEL
+# -------------------------------
 @st.cache_resource
 def load_model():
     return pipeline(
-        "text2text-generation",
+        "text-generation",   # compatible with older transformers
         model="google/flan-t5-base",
-        device=-1  # CPU
+        device=-1
     )
 
 generator = load_model()
 
-# --------------------------------------------------
-# TEXT GENERATION FUNCTION
-# --------------------------------------------------
-def generate_text(prompt, max_tokens=300):
-    inputs = tokenizer(prompt, return_tensors="pt", truncation=True)
-
-    outputs = model.generate(
-        **inputs,
+# -------------------------------
+# GENERATION FUNCTION
+# -------------------------------
+def generate_text(prompt, max_tokens=250):
+    response = generator(
+        prompt,
         max_length=max_tokens,
-        num_beams=6,
-        temperature=0.9,
+        temperature=0.7,
+        num_beams=5,
         repetition_penalty=1.2,
-        no_repeat_ngram_size=3,
-        early_stopping=True
+        no_repeat_ngram_size=3
     )
+    return response[0]["generated_text"]
 
-    return tokenizer.decode(outputs[0], skip_special_tokens=True)
-# --------------------------------------------------
-# USER INPUT
-# --------------------------------------------------
+# -------------------------------
+# USER INPUT SECTION
+# -------------------------------
+col1, col2 = st.columns(2)
 
-name = st.text_input("Enter your name:")
-email = st.text_input("Enter your email:")
-skills_input = st.text_area("Enter your skills:")
-project_title = st.text_input("Enter your project title:")
-project_desc = st.text_area("Describe your project:")
+with col1:
+    name = st.text_input("Full Name")
+    email = st.text_input("Email")
+    skills_input = st.text_area("Enter Your Skills")
 
-# --------------------------------------------------
+with col2:
+    project_title = st.text_input("Project Title")
+    project_desc = st.text_area("Project Description")
+
+# -------------------------------
 # GENERATE BUTTON
-# --------------------------------------------------
+# -------------------------------
+if st.button("Generate Portfolio"):
 
-if st.button("Generate Resume & Portfolio"):
+    # Predict Role
+    skills_vector = vectorizer.transform([skills_input])
+    predicted_role = model_ml.predict(skills_vector)[0]
 
-    if not name or not email or not skills_input:
-        st.warning("⚠ Please fill all required fields.")
-    else:
-        skills_vector = vectorizer.transform([skills_input])
-        predicted_role = model_ml.predict(skills_vector)[0]
+    st.success(f"🎯 Predicted Job Role: {predicted_role}")
 
-        st.subheader("🎯 Predicted Job Role")
-        st.success(predicted_role)
+    # PROMPTS
+    objective_prompt = f"""
+    Write a professional career objective for a {predicted_role}
+    with skills in {skills_input}.
+    Highlight technical strengths, problem-solving ability,
+    and motivation to contribute to an organization.
+    """
 
-        objective_prompt = f"""
-Write a professional and impactful career objective for a {predicted_role}
-who has skills in {skills_input}.
+    bio_prompt = f"""
+    Write a professional third-person bio for {name},
+    a {predicted_role} skilled in {skills_input}.
+    Describe technical expertise, analytical thinking,
+    and passion for innovation.
+    """
 
-The objective should sound confident, highlight technical strengths,
-and express interest in contributing to an organization.
-Write it as a smooth paragraph.
-"""
+    project_prompt = f"""
+    Write a professional project description.
 
-        bio_prompt = f"""
-Write a professional third-person bio for {name},
-an aspiring {predicted_role} skilled in {skills_input}.
+    Project: {project_title}
+    Details: {project_desc}
 
-The bio should describe technical expertise, analytical ability,
-and commitment to professional growth.
-Write it as a smooth and natural paragraph.
-"""
+    Explain the purpose, technologies used,
+    and the impact of the project.
+    """
 
-        project_prompt = f"""
-Write a professional project description.
+    # Generate Content
+    objective = generate_text(objective_prompt)
+    bio = generate_text(bio_prompt)
+    project_text = generate_text(project_prompt)
 
-Project Title: {project_title}
-Project Details: {project_desc}
+    # Display Sections
+    st.markdown("## 📝 Career Objective")
+    st.info(objective)
 
-Explain the purpose of the project, technologies involved,
-and the impact or benefits of the solution.
-Write it clearly as a detailed paragraph.
-"""
+    st.markdown("## 👤 Professional Bio")
+    st.success(bio)
 
-        objective = generate_text(objective_prompt, 150)
-        bio = generate_text(bio_prompt, 200)
-        project_text = generate_text(project_prompt, 250)
+    st.markdown("## 🚀 Project Description")
+    st.warning(project_text)
 
-        st.subheader("📝 AI Career Objective")
-        st.write(objective)
-
-        st.subheader("👤 AI Professional Bio")
-        st.write(bio)
-
-        st.subheader("🚀 AI Project Description")
-        st.write(project_text)
-
-        # Build Resume Text
-        resume_text = f"""
+    # -------------------------------
+    # GENERATED RESUME TEXT
+    # -------------------------------
+    resume_text = f"""
 {name}
 Email: {email}
 
@@ -161,56 +166,16 @@ Project:
 {project_text}
 """
 
-        st.subheader("📄 Generated Resume")
-        st.text(resume_text)
+    st.markdown("## 📄 Generated Resume")
+    st.text_area("Resume Preview", resume_text, height=300)
 
-        # Build Portfolio Text
-        portfolio_text = f"""
-Name: {name}
-Email: {email}
+    st.download_button(
+        label="📥 Download Resume",
+        data=resume_text,
+        file_name="Resume.txt",
+        mime="text/plain"
+    )
 
-Role: {predicted_role}
-
-Professional Bio:
-{bio}
-
-Skills:
-{skills_input}
-
-Project Summary:
-{project_text}
-"""
-
-        st.subheader("🌐 Generated Portfolio")
-        st.text(portfolio_text)
-
-        # --------------------------------------------------
-        # PDF GENERATION
-        # --------------------------------------------------
-
-        file_name = "AI_Resume_and_Portfolio.pdf"
-        doc = SimpleDocTemplate(file_name, pagesize=A4)
-        elements = []
-        styles = getSampleStyleSheet()
-        style = styles["Normal"]
-
-        full_text = resume_text + "\n\n" + portfolio_text
-
-        for line in full_text.split("\n"):
-            elements.append(Paragraph(line, style))
-            elements.append(Spacer(1, 8))
-
-        doc.build(elements)
-
-        with open(file_name, "rb") as f:
-            st.download_button(
-                "⬇ Download Resume & Portfolio PDF",
-                f,
-                file_name=file_name,
-                mime="application/pdf"
-            )
-
-        os.remove(file_name)
 
 
 
