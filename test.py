@@ -72,6 +72,7 @@ def generate_text(prompt, max_tokens=150):
         max_length=max_tokens,
         num_beams=5,
         temperature=0.7,
+        no_repeat_ngram_size=2,
         early_stopping=True
     )
 
@@ -108,46 +109,35 @@ if st.button("Generate Resume & Portfolio"):
         # ----------------------------
         # AI PROMPTS (Correctly Indented)
         # ----------------------------
-        objective_prompt = f"""
-You are a professional resume writer.
+objective_prompt = f"""
+Write a professional career objective for a {predicted_role}
+with skills in {skills_input}.
 
-Write a strong and professional career objective for a {predicted_role}.
-The candidate has skills in {skills_input}.
-
-Make it:
-- 3 to 4 lines
-- Formal and impactful
-- Focused on growth and contribution
-- Avoid repetition
+The objective should be 3-4 sentences in a formal tone.
+Do not mention instructions.
+Do not write headings.
+Only write the final objective paragraph.
 """
 
-        bio_prompt = f"""
-Write a concise professional bio for {name}, an aspiring {predicted_role}.
+  bio_prompt = f"""
+Write a professional third-person bio for {name},
+an aspiring {predicted_role} skilled in {skills_input}.
 
-Skills: {skills_input}
-
-Make it:
-- 4 to 5 lines
-- Third person
-- Professional tone
-- Highlight technical strengths
-- Do not repeat sentences
+Keep it concise and professional.
+Do not include formatting symbols.
+Only return the bio paragraph.
 """
 
-        project_prompt = f"""
-Write a technical and professional project description.
+      project_prompt = f"""
+Write a professional project description.
 
 Project Title: {project_title}
 Project Details: {project_desc}
 
-Make it:
-- 5 to 6 lines
-- Explain purpose clearly
-- Mention technologies if relevant
-- Highlight impact
-- Avoid repetition
+Explain the purpose, technologies, and impact clearly.
+Do not repeat the project title multiple times.
+Only return the description paragraph.
 """
-
         # ----------------------------
         # Generate AI Text
         # ----------------------------
@@ -234,6 +224,7 @@ Project Summary:
             )
 
         os.remove(file_name)
+
 
 
 
