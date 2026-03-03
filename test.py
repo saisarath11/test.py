@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+from transformers import pipeline
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
@@ -51,14 +52,13 @@ st.success("✅ ML Role Prediction Model Ready")
 
 @st.cache_resource
 def load_model():
-    model_name = "google/flan-t5-base"
+    return pipeline(
+        "text2text-generation",
+        model="google/flan-t5-base",
+        device=-1  # CPU
+    )
 
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
-
-    return tokenizer, model
-
-tokenizer, model = load_model()
+generator = load_model()
 
 # --------------------------------------------------
 # TEXT GENERATION FUNCTION
@@ -211,6 +211,7 @@ Project Summary:
             )
 
         os.remove(file_name)
+
 
 
 
