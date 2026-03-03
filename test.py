@@ -61,7 +61,7 @@ model_ml.fit(X, labels)
 @st.cache_resource
 def load_model():
     return pipeline(
-        "text-generation",   # compatible with older transformers
+        task="text2text-generation",
         model="google/flan-t5-base",
         device=-1
     )
@@ -71,14 +71,13 @@ generator = load_model()
 # -------------------------------
 # GENERATION FUNCTION
 # -------------------------------
-def generate_text(prompt, max_tokens=250):
+def generate_text(prompt, max_tokens=200):
     response = generator(
         prompt,
         max_length=max_tokens,
         temperature=0.7,
-        num_beams=5,
-        repetition_penalty=1.2,
-        no_repeat_ngram_size=3
+        num_beams=4,
+        repetition_penalty=1.2
     )
     return response[0]["generated_text"]
 
@@ -109,28 +108,31 @@ if st.button("Generate Portfolio"):
 
     # PROMPTS
     objective_prompt = f"""
-    Write a professional career objective for a {predicted_role}
-    with skills in {skills_input}.
-    Highlight technical strengths, problem-solving ability,
-    and motivation to contribute to an organization.
-    """
+  Generate a professional career objective.
+
+Role: {predicted_role}
+Skills: {skills_input}
+
+Output:
+"""
 
     bio_prompt = f"""
-    Write a professional third-person bio for {name},
-    a {predicted_role} skilled in {skills_input}.
-    Describe technical expertise, analytical thinking,
-    and passion for innovation.
-    """
+   Generate a professional third-person bio.
 
+Name: {name}
+Role: {predicted_role}
+Skills: {skills_input}
+
+Output:
+"""
     project_prompt = f"""
-    Write a professional project description.
+  Generate a professional project description.
 
-    Project: {project_title}
-    Details: {project_desc}
+Project Name: {project_title}
+Details: {project_desc}
 
-    Explain the purpose, technologies used,
-    and the impact of the project.
-    """
+Output:
+"""
 
     # Generate Content
     objective = generate_text(objective_prompt)
@@ -175,6 +177,7 @@ Project:
         file_name="Resume.txt",
         mime="text/plain"
     )
+
 
 
 
