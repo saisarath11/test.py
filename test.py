@@ -2,19 +2,20 @@ import streamlit as st
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
-from transformers import pipeline
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet
+import torch
 import os
 
 st.set_page_config(page_title="AI Resume & Portfolio Builder", layout="centered")
 
 st.title("🤖 AI Resume & Portfolio Builder (Full AI Version)")
 
-# ------------------------------
+# --------------------------------------------------
 # ML ROLE PREDICTION MODEL
-# ------------------------------
+# --------------------------------------------------
 
 data = {
     "skills": [
@@ -39,38 +40,55 @@ vectorizer = TfidfVectorizer()
 X = vectorizer.fit_transform(df["skills"])
 y = df["role"]
 
-model = MultinomialNB()
-model.fit(X, y)
+model_ml = MultinomialNB()
+model_ml.fit(X, y)
 
 st.success("✅ ML Role Prediction Model Ready")
 
-# ------------------------------
-# LOAD FLAN-T5 (INSTRUCTION MODEL)
-# ------------------------------
+# --------------------------------------------------
+# LOAD FLAN-T5 SMALL (STABLE)
+# --------------------------------------------------
 
 @st.cache_resource
 def load_model():
-    return pipeline(
-        "text2text-generation",
-        model="google/flan-t5-base",
-        device=-1
+    model_name = "google/flan-t5-small"
+
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+
+    return tokenizer, model
+
+tokenizer, model = load_model()
+
+# --------------------------------------------------
+# TEXT GENERATION FUNCTION
+# --------------------------------------------------
+
+def generate_text(prompt, max_tokens=150):
+    inputs = tokenizer(prompt, return_tensors="pt", truncation=True)
+
+    outputs = model.generate(
+        **inputs,
+        max_length=max_tokens,
+        num_beams=4,
+        early_stopping=True
     )
 
-generator = load_model()
+    return tokenizer.decode(outputs[0], skip_special_tokens=True)
 
-# ------------------------------
-# USER INPUTS
-# ------------------------------
+# --------------------------------------------------
+# USER INPUT
+# --------------------------------------------------
 
 name = st.text_input("Enter your name:")
-email = st.text_input("Enter email:")
+email = st.text_input("Enter your email:")
 skills_input = st.text_area("Enter your skills:")
 project_title = st.text_input("Enter your project title:")
 project_desc = st.text_area("Describe your project:")
 
-# ------------------------------
+# --------------------------------------------------
 # GENERATE BUTTON
-# ------------------------------
+# --------------------------------------------------
 
 if st.button("Generate Resume & Portfolio"):
 
@@ -78,17 +96,14 @@ if st.button("Generate Resume & Portfolio"):
         st.warning("⚠ Please fill all required fields.")
     else:
 
-        # Predict Role
+        # Predict role
         skills_vector = vectorizer.transform([skills_input])
-        predicted_role = model.predict(skills_vector)[0]
+        predicted_role = model_ml.predict(skills_vector)[0]
 
         st.subheader("🎯 Predicted Job Role")
         st.success(predicted_role)
 
-        # ------------------------------
-        # FLAN-T5 PROMPTS
-        # ------------------------------
-
+        # AI Prompts
         objective_prompt = f"""
 Write a professional 3-4 line career objective for a {predicted_role}
 with skills in {skills_input}.
@@ -107,15 +122,12 @@ Write a professional project description for a project titled
 Keep it clear and technical.
 """
 
-        # Generate outputs
-        objective = generator(objective_prompt, max_length=150)[0]["generated_text"]
-        bio = generator(bio_prompt, max_length=200)[0]["generated_text"]
-        project_text = generator(project_prompt, max_length=250)[0]["generated_text"]
+        # Generate AI Content
+        objective = generate_text(objective_prompt, 150)
+        bio = generate_text(bio_prompt, 200)
+        project_text = generate_text(project_prompt, 250)
 
-        # ------------------------------
-        # DISPLAY OUTPUT
-        # ------------------------------
-
+        # Display
         st.subheader("📝 AI Career Objective")
         st.write(objective)
 
@@ -125,10 +137,7 @@ Keep it clear and technical.
         st.subheader("🚀 AI Project Description")
         st.write(project_text)
 
-        # ------------------------------
-        # BUILD RESUME TEXT
-        # ------------------------------
-
+        # Build Resume Text
         resume_text = f"""
 {name}
 Email: {email}
@@ -148,6 +157,7 @@ Project:
         st.subheader("📄 Generated Resume")
         st.text(resume_text)
 
+        # Build Portfolio Text
         portfolio_text = f"""
 Name: {name}
 Email: {email}
@@ -167,9 +177,9 @@ Project Summary:
         st.subheader("🌐 Generated Portfolio")
         st.text(portfolio_text)
 
-        # ------------------------------
+        # --------------------------------------------------
         # PDF GENERATION
-        # ------------------------------
+        # --------------------------------------------------
 
         file_name = "AI_Resume_and_Portfolio.pdf"
         doc = SimpleDocTemplate(file_name, pagesize=A4)
@@ -194,3 +204,4 @@ Project Summary:
             )
 
         os.remove(file_name)
+
