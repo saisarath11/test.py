@@ -63,14 +63,15 @@ tokenizer, model = load_model()
 # --------------------------------------------------
 # TEXT GENERATION FUNCTION
 # --------------------------------------------------
-def generate_text(prompt, max_tokens=250):
+def generate_text(prompt, max_tokens=300):
     inputs = tokenizer(prompt, return_tensors="pt", truncation=True)
 
     outputs = model.generate(
         **inputs,
         max_length=max_tokens,
-        num_beams=5,
-        temperature=0.8,
+        num_beams=6,
+        temperature=0.9,
+        repetition_penalty=1.2,
         no_repeat_ngram_size=3,
         early_stopping=True
     )
@@ -210,6 +211,7 @@ Project Summary:
             )
 
         os.remove(file_name)
+
 
 
 
