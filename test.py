@@ -96,37 +96,24 @@ if st.button("Generate Resume & Portfolio"):
     if not name or not email or not skills_input:
         st.warning("⚠ Please fill all required fields.")
     else:
-
-        # ----------------------------
-        # Predict Role
-        # ----------------------------
         skills_vector = vectorizer.transform([skills_input])
         predicted_role = model_ml.predict(skills_vector)[0]
 
         st.subheader("🎯 Predicted Job Role")
         st.success(predicted_role)
 
-        # ----------------------------
-        # AI PROMPTS (Correctly Indented)
-        # ----------------------------
-        
         objective_prompt = f"""
 Write a professional career objective for a {predicted_role}
 with skills in {skills_input}.
-
-The objective should be 3-4 sentences in a formal tone.
-Do not mention instructions.
-Do not write headings.
-Only write the final objective paragraph.
+Write 3 to 4 complete sentences in formal tone.
+Return only the paragraph.
 """
 
         bio_prompt = f"""
 Write a professional third-person bio for {name},
 an aspiring {predicted_role} skilled in {skills_input}.
-
 Keep it concise and professional.
-Do not include formatting symbols.
-Only return the bio paragraph.
+Return only the paragraph.
 """
 
         project_prompt = f"""
@@ -135,20 +122,14 @@ Write a professional project description.
 Project Title: {project_title}
 Project Details: {project_desc}
 
-Explain the purpose, technologies, and impact clearly.
-Do not repeat the project title multiple times.
-Only return the description paragraph.
+Explain purpose, technologies used, and impact clearly.
+Return only the paragraph.
 """
-        # ----------------------------
-        # Generate AI Text
-        # ----------------------------
+
         objective = generate_text(objective_prompt, 150)
         bio = generate_text(bio_prompt, 200)
         project_text = generate_text(project_prompt, 250)
 
-        # ----------------------------
-        # Display Output
-        # ----------------------------
         st.subheader("📝 AI Career Objective")
         st.write(objective)
 
@@ -225,6 +206,7 @@ Project Summary:
             )
 
         os.remove(file_name)
+
 
 
 
