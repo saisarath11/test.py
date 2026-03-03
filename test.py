@@ -109,7 +109,7 @@ if st.button("Generate Resume & Portfolio"):
         # ----------------------------
         # AI PROMPTS (Correctly Indented)
         # ----------------------------
-objective_prompt = f"""
+        objective_prompt = f"""
 Write a professional career objective for a {predicted_role}
 with skills in {skills_input}.
 
@@ -119,7 +119,7 @@ Do not write headings.
 Only write the final objective paragraph.
 """
 
-  bio_prompt = f"""
+         bio_prompt = f"""
 Write a professional third-person bio for {name},
 an aspiring {predicted_role} skilled in {skills_input}.
 
@@ -128,7 +128,7 @@ Do not include formatting symbols.
 Only return the bio paragraph.
 """
 
-      project_prompt = f"""
+          project_prompt = f"""
 Write a professional project description.
 
 Project Title: {project_title}
@@ -224,6 +224,7 @@ Project Summary:
             )
 
         os.remove(file_name)
+
 
 
 
