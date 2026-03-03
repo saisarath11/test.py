@@ -96,64 +96,68 @@ if st.button("Generate Resume & Portfolio"):
         st.warning("⚠ Please fill all required fields.")
     else:
 
-        # Predict role
+        # ----------------------------
+        # Predict Role
+        # ----------------------------
         skills_vector = vectorizer.transform([skills_input])
         predicted_role = model_ml.predict(skills_vector)[0]
 
         st.subheader("🎯 Predicted Job Role")
         st.success(predicted_role)
 
-        # AI Prompts
-      # ------------------------------
-# IMPROVED AI PROMPTS
-# ------------------------------
+        # ----------------------------
+        # AI PROMPTS (Correctly Indented)
+        # ----------------------------
+        objective_prompt = f"""
+You are a professional resume writer.
 
-         objective_prompt = f"""
-         You are a professional resume writer.
+Write a strong and professional career objective for a {predicted_role}.
+The candidate has skills in {skills_input}.
 
-         Write a strong and professional career objective for a {predicted_role}.
-         The candidate has skills in {skills_input}.
+Make it:
+- 3 to 4 lines
+- Formal and impactful
+- Focused on growth and contribution
+- Avoid repetition
+"""
 
-         Make it:
-         - 3 to 4 lines
-         - Formal and impactful
-         - Focused on growth, contribution, and problem-solving
-         - Avoid repetition
-         """
+        bio_prompt = f"""
+Write a concise professional bio for {name}, an aspiring {predicted_role}.
 
-         bio_prompt = f"""
-         Write a concise professional bio for {name}, an aspiring {predicted_role}.
+Skills: {skills_input}
 
-         Skills: {skills_input}
-
-        Make it:
-        - 4 to 5 lines
-        - Third person
-        - Professional tone
-        - Highlight strengths and technical expertise
-        - Do not repeat sentences
-        """
+Make it:
+- 4 to 5 lines
+- Third person
+- Professional tone
+- Highlight technical strengths
+- Do not repeat sentences
+"""
 
         project_prompt = f"""
-        Write a technical and professional project description.
+Write a technical and professional project description.
 
-        Project Title: {project_title}
-        Project Details: {project_desc}
+Project Title: {project_title}
+Project Details: {project_desc}
 
-        Make it:
-        - 5 to 6 lines
-        - Clearly explain purpose
-        - Mention technologies used (if relevant to {skills_input})
-        - Highlight impact and outcomes
-        - Avoid repetition
-        """
+Make it:
+- 5 to 6 lines
+- Explain purpose clearly
+- Mention technologies if relevant
+- Highlight impact
+- Avoid repetition
+"""
 
-        # Generate AI Content
+        # ----------------------------
+        # Generate AI Text
+        # ----------------------------
         objective = generate_text(objective_prompt, 150)
         bio = generate_text(bio_prompt, 200)
         project_text = generate_text(project_prompt, 250)
 
-        # Display
+        # ----------------------------
+        # Display Output
+        # ----------------------------
         st.subheader("📝 AI Career Objective")
         st.write(objective)
 
@@ -230,6 +234,7 @@ Project Summary:
             )
 
         os.remove(file_name)
+
 
 
 
