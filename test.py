@@ -71,11 +71,11 @@ generator = load_model()
 # -------------------------------
 # GENERATION FUNCTION
 # -------------------------------
-def generate_text(prompt, max_tokens=200):
+def generate_text(prompt, max_tokens=150):
     response = generator(
         prompt,
         max_length=max_tokens,
-        temperature=0.7,
+        temperature=0.8,
         num_beams=4,
         repetition_penalty=1.2
     )
@@ -108,21 +108,25 @@ if st.button("Generate Portfolio"):
 
     # PROMPTS
     objective_prompt = f"""
-  Generate a professional career objective.
+Generate a professional career objective in 2-3 sentences.
 
 Role: {predicted_role}
 Skills: {skills_input}
 
+Make it sound confident, highlight technical ability,
+and mention contributing to an organization.
 Output:
 """
 
     bio_prompt = f"""
-   Generate a professional third-person bio.
+ Generate a professional third-person bio in 2-3 sentences.
 
 Name: {name}
 Role: {predicted_role}
 Skills: {skills_input}
 
+Mention technical expertise, analytical thinking,
+and passion for innovation.
 Output:
 """
     project_prompt = f"""
@@ -177,6 +181,7 @@ Project:
         file_name="Resume.txt",
         mime="text/plain"
     )
+
 
 
 
